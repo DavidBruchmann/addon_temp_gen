@@ -15,6 +15,7 @@ template_saved = Gespeichert
 template_continue = Weiter
 template_create = Addon erzeugen
 template_created = Addon wurde erzeugt
+template_not_created = Addon wurde NICHT erzeugt
 template_cancel = Zurück
 template_documentation = Dokumentation
 template_file_msg0 = Die Dokumentation zu Redaxo enthält eine sehr gute Beschreibung zum Einsatz und der Verwendung der Dateien: 
