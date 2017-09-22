@@ -3,8 +3,21 @@
 /** @var rex_addon $this */
 
 
-  $search = array("***name***","***version***","***author***","***title***","***release***");
-  $replace = array($this->getConfig('a_name'),$this->getConfig('a_version'),$this->getConfig('a_author'),$this->getConfig('a_title'),$this->getConfig('a_release'));if (rex_post ( 'config-submit', 'boolean' )) {
+  $search = array(
+    "***name***",
+    "***version***",
+    "***author***",
+    "***title***",
+    "***release***"
+  );
+  $replace = array(
+    $this->getConfig('a_name'),
+    $this->getConfig('a_version'),
+    $this->getConfig('a_author'),
+    $this->getConfig('a_title'),
+    $this->getConfig('a_release')
+  );
+if (rex_post ( 'config-submit', 'boolean' )) {
   $this->setConfig ( rex_post ( 'config', [ 
       [ 
           'a_title',
@@ -93,7 +106,11 @@
       [ 
           'a_plugins',
           'bool' 
-      ] 
+      ],
+      [ 
+          'a_fragments',
+          'bool'
+      ]
   ] ) );
   
   
@@ -123,14 +140,17 @@
     $content .=  ($this->getConfig ( 'a_scss' )?"<b><i>scss</b></i><br>":"");
     $content .=  ($this->getConfig ( 'a_install' )?"<b><i>install</b></i><br>":"");
     $content .=  ($this->getConfig ( 'a_plugins' )?"<b><i>plugins</b></i><br>":"");
+    $content .=  ($this->getConfig ( 'a_fragments' )?"<b><i>fragments</b></i><br>":"");
     $formElements = [ ];
     
     $n = [ ];
-    $n ['field'] = '<button class="btn btn-cancel rex-form-aligned" type="submit" name="config-cancel" value="1" ' . rex::getAccesskey ( $this->i18n ( 'template_cancel' ), 'save' ) . '>' . $this->i18n ( 'template_cancel' ) . '</button>';
+    $n ['field'] = '<button class="btn btn-cancel rex-form-aligned" type="submit" name="config-cancel" value="1" ' .
+        rex::getAccesskey ( $this->i18n ( 'template_cancel' ), 'save' ) . '>' . $this->i18n ( 'template_cancel' ) . '</button>';
     $formElements [] = $n;
     
     $n = [ ];
-    $n ['field'] = '<button class="btn btn-save rex-form-aligned" type="submit" name="config-create" value="1" ' . rex::getAccesskey ( $this->i18n ( 'template_create' ), 'save' ) . '>' . $this->i18n ( 'template_create' ) . '</button>';
+    $n ['field'] = '<button class="btn btn-save rex-form-aligned" type="submit" name="config-create" value="1" ' .
+        rex::getAccesskey ( $this->i18n ( 'template_create' ), 'save' ) . '>' . $this->i18n ( 'template_create' ) . '</button>';
     $formElements [] = $n;
     
     $fragment = new rex_fragment ();
@@ -154,7 +174,6 @@
   }
 } elseif (rex_post ( 'config-create', 'boolean' )) {
 
-  echo rex_view::success ( $this->i18n ( 'template_created' ) );
   $newdir = str_replace($this->getProperty('package'),$this->getConfig('a_name'),$this->getPath());
   $source =$this->getDataPath()."package.yml";
   $destination =$newdir."package.yml";
@@ -162,6 +181,7 @@
   $yml = str_replace($search,$replace,$yml);
   $pieces = array();
   if (@mkdir($newdir)) {
+    echo rex_view::success ( $this->i18n ( 'template_created' ) );
     $pieces[] = "<h3>neues Addon-Verzeichnis: <b>".$newdir."</b> wurde angelegt.</h3>";
     if (file_put_contents($destination, $yml)) {
       $pieces[] = "<b>Dateien:</b><i>";
@@ -278,7 +298,13 @@
         $pieces[] = "plugins";
       }
     }
+    if ($this->getConfig ( 'a_fragments' )) {
+      if (rex_dir::copy($this->getDataPath('fragments'), $newdir."fragments/")) {
+        $pieces[] = "fragments";
+      }
+    }
   } else {
+    echo rex_view::warning ( $this->i18n ( 'template_not_created' ) );
     if (is_dir($newdir)) {
       $pieces[] = "<h3>Das Verzeichnis ist bereits vorhanden!</h3>";
       $addon = $this->getConfig ('a_name');
@@ -346,27 +372,32 @@
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-boot">boot.php</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-boot" name="config[a_boot]" value="1" ' . ($this->getConfig ( 'a_boot' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-boot" name="config[a_boot]" value="1" ' .
+      ($this->getConfig ( 'a_boot' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-help">help.php</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-help" name="config[a_help]" value="1" ' . ($this->getConfig ( 'a_help' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-help" name="config[a_help]" value="1" ' .
+      ($this->getConfig ( 'a_help' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-install_php">install.php</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-install_php" name="config[a_install_php]" value="1" ' . ($this->getConfig ( 'a_install_php' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-install_php" name="config[a_install_php]" value="1" ' .
+      ($this->getConfig ( 'a_install_php' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-install_sql">install.sql</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-install_sql" name="config[a_install_sql]" value="1" ' . ($this->getConfig ( 'a_install_sql' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-install_sql" name="config[a_install_sql]" value="1" ' .
+      ($this->getConfig ( 'a_install_sql' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-uninstall_sql">uninstall.sql</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-uninstall_sql" name="config[a_uninstall_sql]" value="1" ' . ($this->getConfig ( 'a_uninstall_sql' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-uninstall_sql" name="config[a_uninstall_sql]" value="1" ' .
+      ($this->getConfig ( 'a_uninstall_sql' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $fragment = new rex_fragment ();
@@ -385,62 +416,80 @@
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-lang">lang</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-lang" name="config[a_lang]" value="1" ' . ($this->getConfig ( 'a_lang' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-lang" name="config[a_lang]" value="1" ' .
+      ($this->getConfig ( 'a_lang' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-pages">pages</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-pages" name="config[a_pages]" value="1" ' . ($this->getConfig ( 'a_pages' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-pages" name="config[a_pages]" value="1" ' .
+      ($this->getConfig ( 'a_pages' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-lib">lib</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-lib" name="config[a_lib]" value="1" ' . ($this->getConfig ( 'a_lib' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-lib" name="config[a_lib]" value="1" ' .
+      ($this->getConfig ( 'a_lib' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-vendor">vendor</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-vendor" name="config[a_vendor]" value="1" ' . ($this->getConfig ( 'a_vendor' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-vendor" name="config[a_vendor]" value="1" ' .
+      ($this->getConfig ( 'a_vendor' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-functions">functions</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-functions" name="config[a_functions]" value="1" ' . ($this->getConfig ( 'a_functions' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-functions" name="config[a_functions]" value="1" ' .
+      ($this->getConfig ( 'a_functions' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-module">module</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-module" name="config[a_module]" value="1" ' . ($this->getConfig ( 'a_module' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-module" name="config[a_module]" value="1" ' .
+      ($this->getConfig ( 'a_module' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-templates">templates</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-templates" name="config[a_templates]" value="1" ' . ($this->getConfig ( 'a_templates' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-templates" name="config[a_templates]" value="1" ' .
+      ($this->getConfig ( 'a_templates' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-assets">assets</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-assets" name="config[a_assets]" value="1" ' . ($this->getConfig ( 'a_assets' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-assets" name="config[a_assets]" value="1" ' .
+      ($this->getConfig ( 'a_assets' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-data">data</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-data" name="config[a_data]" value="1" ' . ($this->getConfig ( 'a_data' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-data" name="config[a_data]" value="1" ' .
+      ($this->getConfig ( 'a_data' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-scss">scss</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-scss" name="config[a_scss]" value="1" ' . ($this->getConfig ( 'a_scss' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-scss" name="config[a_scss]" value="1" ' .
+      ($this->getConfig ( 'a_scss' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-install">install</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-install" name="config[a_install]" value="1" ' . ($this->getConfig ( 'a_install' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-install" name="config[a_install]" value="1" ' .
+      ($this->getConfig ( 'a_install' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $n = [ ];
   $n ['label'] = '<label for="rex-template-plugins">plugins</label>';
-  $n ['field'] = '<input type="checkbox" id="rex-template-plugins" name="config[a_plugins]" value="1" ' . ($this->getConfig ( 'a_plugins' ) ? ' checked="checked"' : '') . ' />';
+  $n ['field'] = '<input type="checkbox" id="rex-template-plugins" name="config[a_plugins]" value="1" ' .
+      ($this->getConfig ( 'a_plugins' ) ? ' checked="checked"' : '') . ' />';
+  $formElements [] = $n;
+  
+  $n = [ ];
+  $n ['label'] = '<label for="rex-template-fragments">fragments</label>';
+  $n ['field'] = '<input type="checkbox" id="rex-template-fragments" name="config[a_fragments]" value="1" ' .
+      ($this->getConfig ( 'a_fragments' ) ? ' checked="checked"' : '') . ' />';
   $formElements [] = $n;
   
   $fragment = new rex_fragment ();
@@ -450,7 +499,9 @@
   $formElements = [ ];
   
   $n = [ ];
-  $n ['field'] = '<button class="btn btn-save rex-form-aligned" type="submit" name="config-submit" value="1" ' . rex::getAccesskey ( $this->i18n ( 'template_continue' ), 'save' ) . '>' . $this->i18n ( 'template_continue' ) . '</button>';
+  $n ['field'] = '<button class="btn btn-save rex-form-aligned" type="submit" name="config-submit" value="1" ' .
+      rex::getAccesskey ( $this->i18n ( 'template_continue' ), 'save' ) . '>' .
+      $this->i18n ( 'template_continue' ) . '</button>';
   $formElements [] = $n;
   
   $fragment = new rex_fragment ();
