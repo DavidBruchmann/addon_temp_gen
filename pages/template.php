@@ -161,7 +161,7 @@
   $yml = file_get_contents($source);
   $yml = str_replace($search,$replace,$yml);
   $pieces = array();
-  if (mkdir($newdir)) {
+  if (@mkdir($newdir)) {
     $pieces[] = "<h3>neues Addon-Verzeichnis: <b>".$newdir."</b> wurde angelegt.</h3>";
     if (file_put_contents($destination, $yml)) {
       $pieces[] = "<b>Dateien:</b><i>";
@@ -169,7 +169,7 @@
     }
     if ($this->getConfig ( 'a_boot' )) {
       $source =$this->getDataPath()."boot.php";
-      $destination =$newdir."boot.php";
+      $dest =$newdir."boot.php";
       if (copy($source, $dest)) {
         $pieces[] = "boot.php";
       }
@@ -338,7 +338,6 @@
   $fragment->setVar ( 'class', 'edit' );
   $fragment->setVar ( 'title', $this->i18n ( 'template_settings' ) );
   $fragment->setVar ( 'body', $content, false );
-  $fragment->setVar ( 'buttons', $buttons, false );
   $content0 = $fragment->parse ( 'core/page/section.php' );
   
   $content = '<fieldset>';
@@ -378,7 +377,6 @@
   $fragment->setVar ( 'class', 'edit' );
   $fragment->setVar ( 'title', $this->i18n ( 'template_files' ) );
   $fragment->setVar ( 'body', $content, false );
-  $fragment->setVar ( 'buttons', $buttons, false );
   $content1 = $fragment->parse ( 'core/page/section.php' );
   
   $content = '<fieldset>';
