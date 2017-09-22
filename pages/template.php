@@ -3,20 +3,22 @@
 /** @var rex_addon $this */
 
 
-  $search = array(
-    "***name***",
-    "***version***",
-    "***author***",
-    "***title***",
-    "***release***"
-  );
-  $replace = array(
-    $this->getConfig('a_name'),
-    $this->getConfig('a_version'),
-    $this->getConfig('a_author'),
-    $this->getConfig('a_title'),
-    $this->getConfig('a_release')
-  );
+$search = array(
+  "***name***",
+  "***version***",
+  "***author***",
+  "***title***",
+  "***release***"
+);
+
+$replace = array(
+  $this->getConfig('a_name'),
+  $this->getConfig('a_version'),
+  $this->getConfig('a_author'),
+  $this->getConfig('a_title'),
+  $this->getConfig('a_release')
+);
+
 if (rex_post ( 'config-submit', 'boolean' )) {
   $this->setConfig ( rex_post ( 'config', [ 
       [ 
